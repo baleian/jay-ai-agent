@@ -1,7 +1,7 @@
 from typing import Literal
 
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, HumanMessage
 from langgraph.graph import StateGraph, MessagesState, START
 from pydantic import BaseModel, Field
 
@@ -13,6 +13,7 @@ system_prompt = """
 당신은 AI 에이전트 시스템의 지능형 라우팅 감독관입니다.
 
 당신의 **유일한 임무**는 사용자의 최신 질문을 **내용이 아닌 유형에 따라** 분류하고, 가장 적합한 전문가에게 즉시 작업을 전달하는 것입니다.
+**중요:** 이전까지의 대화 내용이나 주제에 대해 관여하지 마세요. 이전 내용과 관련이 없더라도 사용자가 현재 의도하는 바에 따라 적합한 전문가에게 작업을 분배하는 것이 최우선 사항입니다.
 
 **행동 원칙**
 - **신속한 분류**: 질문의 내용을 깊게 이해하거나 해결 방법을 생각하지 마세요. 오직 어느 카테고리에 속하는지만을 신속하게 판단합니다.
@@ -35,8 +36,7 @@ class Route(BaseModel):
 
 
 def get_supervisor_chain():
-    llm = config.get_default_llm()
-    llm.reasoning = True
+    llm = config.get_default_llm(reasoning=True) # TODO: Consider about reasoning
     llm = llm.bind_tools(tools=[Route], tool_choice="Route")
 
     prompt_template = ChatPromptTemplate.from_messages(
@@ -56,7 +56,12 @@ class SupervisorState(MessagesState):
 
 def supervisor_node(state: SupervisorState):
     chain = get_supervisor_chain()
-    response = chain.invoke(state)
+    # TODO: Consider trim_messages to ignore past interactions.
+    messages = state['messages']
+    response = chain.invoke({"messages": messages})
+    if not response.tool_calls:
+        # Supervisor가 라우팅 역할에 충실하지 않고 직접 답변을 한 경우, 한번의 추가 지침을 줍니다.
+        response = chain.invoke({"messages": messages + [HumanMessage(content="Route 도구를 호출하세요.")]})
     route = response.tool_calls[0]['args']
     return {"next": route["next"]}
 
