@@ -158,3 +158,5 @@ docker-compose down -v
 ## 📝 TODO List
 
   - Enhancing prompts based on the [OpenAI Prompting Guide](https://cookbook.openai.com/examples/gpt-5/gpt-5_prompting_guide) cookbook.
+  - Adding `Human in the Loop` to the `SQL Executor`'s tool call step.
+  - Documenting the system architecture design overview.
