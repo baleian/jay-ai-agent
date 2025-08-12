@@ -20,8 +20,7 @@ sql_executor_tools = [execute_query]
 
 
 def get_text_to_sql_chain():
-    llm = config.get_default_llm()
-    llm.reasoning = True
+    llm = config.get_default_llm(reasoning=True)
     llm = llm.bind_tools(tools=text_to_sql_tools)
 
     system_prompt = """
@@ -52,10 +51,11 @@ def get_text_to_sql_chain():
 
 
 def get_sql_corrector_chain():
-    llm = config.get_default_llm()
-    # llm.model = "gpt-oss:20b" # Change the model for more complex reasoning capabilities.
-    # llm.num_ctx = 8192 # Sets the size of the context window used to generate the next token.
-    llm.reasoning = True
+    llm = config.get_default_llm(
+        # model="gpt-oss:20b", # Change the model for more complex reasoning capabilities.
+        # num_ctx=8192, # Sets the size of the context window used to generate the next token.
+        reasoning=True
+    )
     llm = llm.bind_tools(tools=sql_corrector_tools)
 
     system_prompt = """

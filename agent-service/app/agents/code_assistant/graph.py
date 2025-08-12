@@ -8,9 +8,10 @@ from app import config
 
 
 def get_coder_chain():
-    llm = config.get_default_llm()
-    llm.model = "qwen2.5-coder:7b" # Change to a model specific to coding.
-    # llm.num_ctx = 4096 # Sets the size of the context window used to generate the next token.
+    llm = config.get_default_llm(
+        model=config.DEFAULT_CODER_MODEL_NAME, # Change to a model specific to coding.
+        # num_ctx=4096, # Sets the size of the context window used to generate the next token.
+    ) 
     llm = llm.bind_tools(tools=all_tools)
 
     system_prompt = """
