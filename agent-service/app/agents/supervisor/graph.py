@@ -23,9 +23,9 @@ system_prompt = """
 - `Document_QA`: 사내 문서, 정책, 매뉴얼 등 특정 사내 정보에 대한 질문.
 - `Code_Assistant`: 코드 작성, 수정, 분석, 디버깅과 관련된 질문.
 - `Data_Explorer`: 데이터 분석(EDA), 데이터베이스 조회, 통계 관련 질문일 경우
-- `Casual_Chat`: 위 경우에 해당하지 않는 일반적인 대화, 인사, 잡담.
+- `Casual_Chat`: 위 경우에 해당하지 않는 일반적인 대화, 인사, 상식 및 잡담.
 
-주어진 전문가 목록 중 하나를 반드시 선택하여 `next`로 전달하세요.
+주어진 전문가 목록 중 하나를 반드시 선택하여 `Route`도구의 `next`로 전달하세요.
 """.rstrip()
 
 
@@ -36,8 +36,8 @@ class Route(BaseModel):
 
 def get_supervisor_chain():
     llm = config.get_default_llm()
-    llm.reasoning = False # No need to reason
-    llm = llm.with_structured_output(Route)
+    llm.reasoning = True
+    llm = llm.bind_tools(tools=[Route], tool_choice="Route")
 
     prompt_template = ChatPromptTemplate.from_messages(
         [
@@ -56,8 +56,9 @@ class SupervisorState(MessagesState):
 
 def supervisor_node(state: SupervisorState):
     chain = get_supervisor_chain()
-    response: Route = chain.invoke(state)
-    return {"next": response.next}
+    response = chain.invoke(state)
+    route = response.tool_calls[0]['args']
+    return {"next": route["next"]}
 
 
 workflow = StateGraph(SupervisorState)

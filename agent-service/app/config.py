@@ -9,7 +9,7 @@ LLM_SERVICE_URL = env("LLM_SERVICE_URL", cast=str, default="")
 RAG_SERVICE_URL = env("RAG_SERVICE_URL", cast=str, default="")
 DW_SERVICE_URL = env("DW_SERVICE_URL", cast=str, default="")
 
-DEFAULT_REASONING_ENABLE = env("DEFAULT_REASONING_ENABLE", cast=str, default="true").lower() == "true"
+DEFAULT_REASONING_ENABLE = env("DEFAULT_REASONING_ENABLE", cast=str, default="false").lower() == "true"
 
 def get_default_llm():
     return  ChatOllama(

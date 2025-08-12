@@ -21,6 +21,7 @@ sql_executor_tools = [execute_query]
 
 def get_text_to_sql_chain():
     llm = config.get_default_llm()
+    llm.reasoning = True
     llm = llm.bind_tools(tools=text_to_sql_tools)
 
     system_prompt = """
@@ -54,6 +55,7 @@ def get_sql_corrector_chain():
     llm = config.get_default_llm()
     # llm.model = "gpt-oss:20b" # Change the model for more complex reasoning capabilities.
     # llm.num_ctx = 8192 # Sets the size of the context window used to generate the next token.
+    llm.reasoning = True
     llm = llm.bind_tools(tools=sql_corrector_tools)
 
     system_prompt = """
@@ -144,7 +146,6 @@ def get_sql_executor_chain():
 
 def get_summary_chain():
     llm = config.get_default_llm()
-    llm.reasoning = False # No need to reason
 
     system_prompt = """
 - 당신은 `Query Result`의 데이터를 분석합니다. 

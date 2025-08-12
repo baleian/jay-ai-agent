@@ -12,6 +12,7 @@ from app import config
 
 def get_document_qa_cain():
     llm = config.get_default_llm()
+    llm.reasoning = True
     llm = llm.bind_tools(tools=all_tools)
 
     system_prompt = """

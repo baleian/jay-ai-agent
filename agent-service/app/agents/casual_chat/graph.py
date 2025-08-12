@@ -12,6 +12,7 @@ from app import config
 
 def get_casual_chat_chain():
     llm = config.get_default_llm()
+    llm.reasoning = True
     llm = llm.bind_tools(tools=all_tools)
 
     system_prompt = """
