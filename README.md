@@ -88,12 +88,48 @@ docker exec -it agent-service uv run python -m app.cli
 
 -----
 
+## 🕸️ Multi-Agent Workflow
+![](./assets/graph.png)
+
+The workflow is managed by a supervisor that routes tasks to the appropriate specialist agent based on the user's query.
+
+  - **`Supervisor`**: Interacts with the user to determine their intent and routes the query to the most suitable specialist agent.
+
+### Specialist Agents
+
+Below are the specialized agents in this workflow and examples of queries they handle.
+
+  - **`Document_QA`**: Handles queries related to internal knowledge, such as company documents, policies, and manuals.  
+    *Example Queries:*
+       - What is the maximum number of annual leave days for an employee with 20 years of service at our company?
+       - What is the connection address for the production database?
+    
+  - **`Code_Assistant`**: For tasks involving code generation, modification, analysis, and debugging.  
+    *Example Queries:*
+       - Write a Python script that creates a simple web server and returns "Hello, World!".
+       - Write a SQL query to find all users who haven't logged in for over 90 days.
+
+  - **`Data_Explorer`**: Addresses questions requiring data analysis (EDA), database querying, or statistical insights.  
+    *Example Queries:*
+       - How many accounts who have region in Prague?
+       - Provide a table showing the number of cards issued by type for each year.
+
+  - **`Casual_Chat`**: Manages general conversations and any non-specialized chat that doesn't fall into the categories above.  
+    *Example Queries:*
+       - Hi, how are you today?
+       - Can you tell me a fun fact?
+
+-----
+
+
 ## ✅ Text-To-SQL Testing
 
-Example queries to test the Text-to-SQL capabilities.
+Example queries to test the Text-to-SQL capabilities.  
+(Based on the BIRD development dataset: https://bird-bench.github.io/)
 
 1.  **How many accounts who choose issuance after transaction are staying in East Bohemia region?**
 
+    difficulty: `moderate`
     ```sql
     SELECT COUNT(T2.account_id) 
     FROM district AS T1 
@@ -103,28 +139,31 @@ Example queries to test the Text-to-SQL capabilities.
     ```
 
 2.  **How many accounts who have region in Prague are eligible for loans?**
-
+    
+    difficulty: `simple`
     ```sql
     SELECT COUNT(T1.account_id) 
     FROM account AS T1 
     INNER JOIN loan AS T2 ON T1.account_id = T2.account_id 
     INNER JOIN district AS T3 ON T1.district_id = T3.district_id 
     WHERE T3.A3 = 'Prague';
-    -- Result: 84
+    -- Actual Result: 84
     ```
 
 3.  **How many male customers who are living in North Bohemia have average salary greater than 8000?**
 
+    difficulty: `moderate`
     ```sql
     SELECT COUNT(T1.client_id) 
     FROM client AS T1 
     INNER JOIN district AS T2 ON T1.district_id = T2.district_id 
     WHERE T1.gender = 'M' AND T2.A3 = 'north Bohemia' AND T2.A11 > 8000;
-    -- Result: 280
+    -- Actual Result: 280
     ```
 
 4.  **What is the average loan amount by male borrowers?**
 
+    difficulty: `simple`
     ```sql
     SELECT AVG(T4.amount) 
     FROM client AS T1 
@@ -132,7 +171,21 @@ Example queries to test the Text-to-SQL capabilities.
     INNER JOIN account AS T3 ON T2.account_id = T3.account_id 
     INNER JOIN loan AS T4 ON T3.account_id = T4.account_id 
     WHERE T1.gender = 'M';
-    -- Result: :149609.18048780487
+    -- Actual Result: :149609.18048780487
+    ```
+
+5.  **For the branch which located in the south Bohemia with biggest number of inhabitants, what is the percentage of the male clients?**
+
+    difficulty: `challenging`
+    ```sql
+    SELECT CAST(SUM(T1.gender = 'M') AS REAL) * 100 / COUNT(T1.client_id) 
+    FROM client AS T1 
+    INNER JOIN district AS T2 ON T1.district_id = T2.district_id 
+    WHERE T2.A3 = 'south Bohemia' 
+    GROUP BY T2.A4 
+    ORDER BY T2.A4 
+    DESC LIMIT 1;
+    -- Actual Result: :44.26229508196721
     ```
 
 -----
