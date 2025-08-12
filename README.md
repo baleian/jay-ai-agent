@@ -115,7 +115,7 @@ Below are the specialized agents in this workflow and examples of queries they h
   - **`Casual_Chat`**: Manages general conversations and any non-specialized chat that doesn't fall into the categories above.  
     *Example Queries:*
        - Hi, how are you today?
-       - Can you tell me a fun fact?
+       - Compare the current weather in Seoul and New York and recommend a better place to travel.
 
 -----
 
