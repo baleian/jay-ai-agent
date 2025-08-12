@@ -66,7 +66,7 @@ def test_internal_documents_search():
         print("-----")
         print("Query:", query)
         print("Retrieved files:")
-        results = document_search(collection_id=collection_id, query=query, limit=2)
+        results = document_search(collection_id=collection_id, query=query, limit=3)
         for result in results:
             filename, score = result["metadata"]["filename"], result["score"]
             print(filename, score)

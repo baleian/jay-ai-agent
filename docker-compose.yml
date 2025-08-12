@@ -59,6 +59,7 @@ services:
       HF_HOME: /vol/huggingface
     volumes:
       - ./rag-service/langconnect:/app/langconnect
+      - ./rag-service/scripts:/app/scripts
       - rag-service-vol:/vol
     depends_on:
       rag-service-data:

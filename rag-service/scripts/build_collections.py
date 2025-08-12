@@ -124,8 +124,9 @@ def main():
             description="Collection for storing internal company documents."
         )
         internal_docs_files = [
-            {"filename": "연차규정.pdf", "type": "application/pdf", "description": "사내 연차 규정에 대한 내용. Annual leave policy."},
-            {"filename": "시스템정보.txt", "type": "text/plain", "description": "사내 데이터베이스 및 웹 서버와 같은 시스템에 대한 접속 정보. System access informations."}
+            {"filename": "연차규정.pdf", "type": "application/pdf", "description": "Annual leave policy"},
+            {"filename": "Annual Leave Policy.pdf", "type": "application/pdf", "description": "Annual leave policy"},
+            {"filename": "시스템정보.txt", "type": "text/plain", "description": "System access informations"}
         ]
         upload_documents(
             collection_id=internal_docs_collection["uuid"],
