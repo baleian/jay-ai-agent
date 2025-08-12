@@ -51,11 +51,11 @@ class ConsoleUI:
         self.console.print(panel)
         self.console.print("무엇을 도와드릴까요? (종료: 'exit' 또는 'quit', 새 대화: '/new')\n", style="italic yellow")
 
-    @staticmethod
-    def _truncate_text(text: str, start_len: int = 100, end_len: int = 100) -> str:
-        if len(text) <= start_len + end_len + 5:
-            return text
-        return f"{text[:start_len]}...{text[-end_len:]}"
+    def get_reasoning_panel(self, content: str) -> Panel:
+        return Panel(content, title="[cyan]Reasoning[/cyan]", border_style="cyan")
+    
+    def get_message_panel(self, content: str, title: str) -> Panel:
+        return Panel(Markdown(content), title=f"[magenta]{title}[/magenta]", border_style="magenta")
 
     async def _handle_stream(self, stream: Iterator[Any]):
         streaming_reasoning = ""
@@ -76,27 +76,24 @@ class ConsoleUI:
                     chunk = data["chunk"]
                     if new_reasoning_chunk := chunk.additional_kwargs.get("reasoning_content"):
                         streaming_reasoning += new_reasoning_chunk
-                        live.update(Panel(streaming_reasoning, title="[cyan]Reasoning[/cyan]", border_style="cyan"), refresh=True)
+                        live.update(self.get_reasoning_panel(streaming_reasoning), refresh=True)
                     elif chunk.content:
                         if streaming_reasoning:
-                            self.console.print(Panel(streaming_reasoning, title="[cyan]Reasoning[/cyan]", border_style="cyan"))
-                            live.update("")
-                            live.refresh()
+                            self.console.print(self.get_reasoning_panel(streaming_reasoning))
                             streaming_reasoning = ""
+                            live.update("", refresh=True)
                         streaming_content += chunk.content
-                        live.update(Panel(Markdown(streaming_content), title=f"[magenta]{node_name}[/magenta]", border_style="magenta"), refresh=True)
+                        live.update(self.get_message_panel(streaming_content, node_name), refresh=True)
                 
                 elif kind == "on_chat_model_end":
                     if streaming_reasoning:
-                        self.console.print(Panel(streaming_reasoning, title="[cyan]Reasoning[/cyan]", border_style="cyan"))
-                        live.update("")
-                        live.refresh()
+                        self.console.print(self.get_reasoning_panel(streaming_reasoning))
                         streaming_reasoning = ""
+                        live.update("", refresh=True)
                     if streaming_content:
-                        self.console.print(Panel(Markdown(streaming_content), title=f"[magenta]{node_name}[/magenta]", border_style="magenta"))
-                        live.update("")
-                        live.refresh()
+                        self.console.print(self.get_message_panel(streaming_content, node_name))
                         streaming_content = ""
+                        live.update("", refresh=True)
 
                 elif kind == "on_tool_start":
                     self.console.print(f"[grey50] Tool Calling: {node_name} ({event['name']})...[/grey50]")
