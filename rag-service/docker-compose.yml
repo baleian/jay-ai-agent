@@ -1,0 +1,47 @@
+services:
+  reg-service-data:
+    image: pgvector/pgvector:pg16
+    container_name: rag-service-data
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  reg-service-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-service-api
+    restart: always
+    depends_on:
+      reg-service-data:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: rag-service-data
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      HF_HOME: /data/huggingface
+    volumes:
+      - ./langconnect:/app/langconnect
+      - huggingface_data:/data/huggingface
+    
+volumes:
+  postgres_data:
+  huggingface_data:
+
+networks:
+  rag-service-net:

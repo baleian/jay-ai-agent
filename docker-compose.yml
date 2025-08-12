@@ -1,0 +1,80 @@
+volumes:
+  llm-service-vol:
+  rag-service-vol:
+  rag-service-data-vol:
+
+services:
+  llm-service:
+    image: ollama/ollama
+    container_name: llm-service
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_MODELS=/vol/ollama
+    volumes:
+      - llm-service-vol:/vol
+    
+  agent-service:
+    build:
+      context: agent-service
+    container_name: agent-service
+    ports:
+      - "2024:2024"
+    environment:
+      - LLM_SERVICE_URL=http://llm-service:11434
+      - RAG_SERVICE_URL=http://rag-service:8000
+      - DW_SERVICE_URL=http://dw-service:8000
+    volumes:
+      - ./agent-service/app:/app/app
+
+  rag-service-data:
+    image: pgvector/pgvector:pg16
+    container_name: rag-service-data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - rag-service-data-vol:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rag-service:
+    build:
+      context: rag-service
+    container_name: rag-service
+    ports:
+      - "8001:8000"
+    environment:
+      POSTGRES_HOST: rag-service-data
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      HF_HOME: /vol/huggingface
+    volumes:
+      - ./rag-service/langconnect:/app/langconnect
+      - rag-service-vol:/vol
+    depends_on:
+      rag-service-data:
+        condition: service_healthy
+
+  dw-service:
+    build:
+      context: dw-service
+    container_name: dw-service
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./dw-service/app:/app/app
+    healthcheck:
+      test: ["CMD", "curl", "localhost:8000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
