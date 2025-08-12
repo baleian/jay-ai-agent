@@ -31,7 +31,7 @@ MIMETYPE_BASED_PARSER = MimeTypeBasedParser(
 
 # Text Splitter
 # TODO: Refactor to use configurable variables
-TEXT_SPLITTER = RecursiveCharacterTextSplitter(chunk_size=100000000000, chunk_overlap=0)
+TEXT_SPLITTER = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 
 
 async def process_document(

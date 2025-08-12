@@ -13,7 +13,7 @@ def get_embeddings() -> Embeddings:
 
     # TODO: Allow setting different embedding configurations per collection.
     return HuggingFaceEmbeddings(
-        model_name="jhgan/ko-sbert-nli",
+        model_name="BAAI/bge-m3",
         model_kwargs={'device': 'cpu'},
         encode_kwargs={'normalize_embeddings': True}
     )
