@@ -176,8 +176,7 @@ if __name__ == "__main__":
         from app.cli_graph import make_chatbot_graph
         graph = make_chatbot_graph()
         # with open("graph.png", "wb") as f:
-        #     from langchain_core.runnables.graph import MermaidDrawMethod
-        #     f.write(graph.get_graph(xray=True).draw_mermaid_png(draw_method=MermaidDrawMethod.PYPPETEER))
+        #     f.write(graph.get_graph(xray=True).draw_mermaid_png())
         ui = ConsoleUI(graph)
         ui.run()
     except ImportError as e:
