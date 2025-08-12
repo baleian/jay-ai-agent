@@ -121,6 +121,8 @@ class ConsoleUI:
         while True:
             try:
                 user_input = self.console.input("[bold green]You: [/bold green]")
+                # Shell 에서 한글 수정 시 인코딩 에러 방지
+                user_input = user_input.encode('utf-8', 'surrogateescape').decode('utf-8', 'ignore')
 
                 if not user_input.rstrip():
                     continue
