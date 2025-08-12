@@ -101,7 +101,7 @@ Below are the specialized agents in this workflow and examples of queries they h
 
   - **`Document_QA`**: Handles queries related to internal knowledge, such as company documents, policies, and manuals.  
     *Example Queries:*
-       - What is the maximum number of annual leave days for an employee with 20 years of service at our company?
+       - How many vacation days does an employee who has worked for 20 years receive this year?
        - What is the connection address for the production database?
     
   - **`Code_Assistant`**: For tasks involving code generation, modification, analysis, and debugging.  
