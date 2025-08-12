@@ -107,11 +107,9 @@ Below are the specialized agents in this workflow and examples of queries they h
   - **`Code_Assistant`**: For tasks involving code generation, modification, analysis, and debugging.  
     *Example Queries:*
        - Write a Python script that creates a simple web server and returns "Hello, World!".
-       - Write a SQL query to find all users who haven't logged in for over 90 days.
 
   - **`Data_Explorer`**: Addresses questions requiring data analysis (EDA), database querying, or statistical insights.  
     *Example Queries:*
-       - How many accounts who have region in Prague?
        - Provide a table showing the number of cards issued by type for each year.
 
   - **`Casual_Chat`**: Manages general conversations and any non-specialized chat that doesn't fall into the categories above.  
@@ -213,3 +211,4 @@ docker-compose down -v
   - Enhancing prompts based on the [OpenAI Prompting Guide](https://cookbook.openai.com/examples/gpt-5/gpt-5_prompting_guide) cookbook.
   - Adding `Human in the Loop` to the `SQL Executor`'s tool call step.
   - Documenting the system architecture design overview.
+  - Automating `Supervisor` agent validation and evaluation.
