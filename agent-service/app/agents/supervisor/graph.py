@@ -1,3 +1,5 @@
+from typing import Literal
+
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import SystemMessage
 from langgraph.graph import StateGraph, MessagesState, START
@@ -23,19 +25,19 @@ system_prompt = """
 - `Data_Explorer`: 데이터 분석(EDA), 데이터베이스 조회, 통계 관련 질문일 경우
 - `Casual_Chat`: 위 경우에 해당하지 않는 일반적인 대화, 인사, 잡담.
 
-주어진 전문가 목록 중 하나를 반드시 선택하여 작업을 전달하세요.
+주어진 전문가 목록 중 하나를 반드시 선택하여 `next`로 전달하세요.
 """.rstrip()
 
 
 class Route(BaseModel):
     """어떤 에이전트를 다음으로 호출할지 결정합니다."""
-    next: str = Field(..., description="다음 경로. 옵션: [Document_QA, Code_Assistant, Data_Explorer, Casual_Chat]")
+    next: Literal["Document_QA", "Code_Assistant", "Data_Explorer", "Casual_Chat"] = Field(..., description="다음 경로.")
 
 
 def get_supervisor_chain():
     llm = config.get_default_llm()
-    # llm.reasoning = False
-    llm = llm.bind_tools(tools=[Route], tool_choice="Route")
+    llm.reasoning = False # No need to reason
+    llm = llm.with_structured_output(Route)
 
     prompt_template = ChatPromptTemplate.from_messages(
         [
@@ -54,9 +56,8 @@ class SupervisorState(MessagesState):
 
 def supervisor_node(state: SupervisorState):
     chain = get_supervisor_chain()
-    response = chain.invoke(state)
-    route = response.tool_calls[0]['args']
-    return {"next": route['next']}
+    response: Route = chain.invoke(state)
+    return {"next": response.next}
 
 
 workflow = StateGraph(SupervisorState)
