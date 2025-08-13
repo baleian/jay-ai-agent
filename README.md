@@ -43,10 +43,10 @@ Install the required LLM models and initialize the database.
 Pull the large language models that the agent will use.
 
 ```bash
-docker exec -it llm-service ollama pull qwen3:8b
-docker exec -it llm-service ollama pull qwen3:14b
-docker exec -it llm-service ollama pull qwen2.5-coder:7b
-docker exec -it llm-service ollama pull gpt-oss:20b
+# docker exec -it llm-service ollama pull qwen3:8b 
+# docker exec -it llm-service ollama pull qwen3:14b
+# docker exec -it llm-service ollama pull qwen2.5-coder:7b
+docker exec -it llm-service ollama pull gpt-oss:20b # (recommended)
 ```
 
 ### 2\. Initialize Vectorstore Data
