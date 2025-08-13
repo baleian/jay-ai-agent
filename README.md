@@ -75,8 +75,8 @@ Interfaces for interacting with the AI agent.
 
 Access the LangGraph Web UI to visualize and debug the agent's workflow.
 
-  - **URL:** [http://localhost:2024](https://www.google.com/search?q=http://localhost:2024)
-  - Connect via LangSmith Studio: `https://smith.langchain.com/studio/?baseUrl=http://localhost:2024`
+  - **API Docs:** http://localhost:2024/docs
+  - **Connect via LangSmith Studio**: https://smith.langchain.com/studio/?baseUrl=http://localhost:2024
 
 ### 💻 Command-line Interface
 
