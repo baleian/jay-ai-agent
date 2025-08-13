@@ -23,7 +23,6 @@ class ConsoleUI:
         self.thread_id = None
     
     def _print_logo(self):
-        # 1. 아스키 아트로 로고를 만듭니다. (r"""..."""을 사용하면 문자열을 그대로 유지할 수 있습니다.)
         logo_art = r"""
             /\ \       / /\    /\ \     /\_\             / /\                 /\ \
             \ \ \     / /  \   \ \ \   / / /            / /  \                \ \ \
@@ -36,12 +35,11 @@ class ConsoleUI:
 / / /__\/ /    / / /_       __\ \_\   \ \_\ /\_\ / / /_       __\ \_\/\__\/_/___\
 \/_______/     \_\___\     /____/_/    \/_/ \/_/ \_\___\     /____/_/\/_________/
         """.rstrip()
-        # 2. Text 객체로 아스키 아트를 감싸고 스타일을 적용합니다.
+        
         logo_text = Text(logo_art, style="bold magenta")
         
-        # 3. Panel 안에 로고를 중앙 정렬하여 배치합니다.
         panel = Panel(
-            Align.center(logo_text),  # Align.center()로 가운데 정렬
+            Align.center(logo_text),
             title="[bold green]Welcome![/bold green]", 
             border_style="green",
             expand=False,
@@ -61,7 +59,6 @@ class ConsoleUI:
         streaming_reasoning = ""
         streaming_content = ""
 
-        # Live 객체는 현재 스트리밍 중인 패널만 관리합니다.
         with Live(console=self.console, auto_refresh=False, transient=True) as live:
             async for event in stream:
                 kind = event["event"]
@@ -137,14 +134,12 @@ class ConsoleUI:
                     self.console.print("-" * 50, style="dim")
                     continue
                 
-                # 새 대화 시작 시 thread_id 생성
                 if self.thread_id is None:
                     self.thread_id = uuid.uuid4()
                     self.console.print(f"[yellow]New conversation started. Thread ID: {self.thread_id}[/yellow]")
 
                 self.console.print("-" * 50, style="dim")
 
-                # MemorySaver를 위한 config 객체 생성
                 config = {
                     "configurable": {
                         "thread_id": str(self.thread_id),
@@ -175,8 +170,6 @@ if __name__ == "__main__":
     try:
         from app.cli_graph import make_chatbot_graph
         graph = make_chatbot_graph()
-        # with open("graph.png", "wb") as f:
-        #     f.write(graph.get_graph(xray=True).draw_mermaid_png())
         ui = ConsoleUI(graph)
         ui.run()
     except ImportError as e:
