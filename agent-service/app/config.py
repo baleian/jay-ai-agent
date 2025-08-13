@@ -10,7 +10,7 @@ RAG_SERVICE_URL = env("RAG_SERVICE_URL", cast=str, default="")
 DW_SERVICE_URL = env("DW_SERVICE_URL", cast=str, default="")
 
 DEFAULT_MODEL_NAME = env("DEFAULT_MODEL_NAME", cast=str, default="gpt-oss:20b")
-DEFAULT_CODER_MODEL_NAME = env("DEFAULT_CODER_MODEL_NAME", cast=str, default="qwen2.5-coder:7b")
+DEFAULT_CODER_MODEL_NAME = env("DEFAULT_CODER_MODEL_NAME", cast=str, default="gpt-oss:20b") # qwen2.5-coder:7b
 DEFAULT_REASONING_ENABLE = env("DEFAULT_REASONING_ENABLE", cast=str, default="false").lower() == "true"
 
 def get_default_llm(
