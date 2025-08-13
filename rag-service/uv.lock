@@ -1011,6 +1011,7 @@ dependencies = [
     { name = "psycopg", extra = ["binary"] },
     { name = "python-dotenv" },
     { name = "python-multipart" },
+    { name = "sentence-transformers" },
     { name = "unstructured" },
     { name = "uvicorn" },
 ]
@@ -1048,6 +1049,7 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2.6" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "python-multipart", specifier = ">=0.0.20" },
+    { name = "sentence-transformers", specifier = ">=5.1.0" },
     { name = "unstructured", specifier = ">=0.17.2" },
     { name = "uvicorn", specifier = ">=0.34.0" },
 ]

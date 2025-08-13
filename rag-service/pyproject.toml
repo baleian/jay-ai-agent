@@ -28,6 +28,7 @@ dependencies = [
     "unstructured>=0.17.2",
     "gotrue>=2.12.0",
     "langchain-huggingface>=0.1.2",
+    "sentence-transformers>=5.1.0",
 ]
 
 [project.packages]
