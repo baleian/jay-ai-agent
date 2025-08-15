@@ -8,7 +8,9 @@ def test_supervisor_routing():
     df = pd.read_csv("tests/data/supervisor_eval_data.csv", encoding="utf-8")
     
     correct_count = 0
+    total_count = 0
     for index, row in df.iterrows():
+        total_count += 1
         question, answer = row["question"], row["answer"]
         response = chain.invoke({"messages": [("human", question)]})
         if response.tool_calls:
@@ -20,6 +22,8 @@ def test_supervisor_routing():
         print("[CORRECT]" if is_correct else "[ERROR]", index, question, answer, agent_answer)
         if is_correct:
             correct_count += 1
-        
-    assert correct_count / (index + 1) >= 0.9, "The routing accuracy is less than 90%"
+    
+    accuracy = correct_count / total_count
+    print("Routing Accuracy:", round(accuracy, 2))
+    assert correct_count / total_count >= 0.9, "The routing accuracy is less than 90%"
     
