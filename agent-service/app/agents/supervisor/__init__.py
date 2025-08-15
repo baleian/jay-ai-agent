@@ -1,3 +1,3 @@
-from .graph import graph
+from .graph import graph, get_supervisor_chain
 
-__all__ = ["graph"]
+__all__ = ["graph", "get_supervisor_chain"]

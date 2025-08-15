@@ -1,0 +1,81 @@
+question,answer
+"What is the performance review process for the second half of this year?",Document_QA
+"Please find the onboarding checklist for new hires.",Document_QA
+"What is the monthly deadline for expense report submissions?",Document_QA
+"Can you tell me the company Wi-Fi password?",Document_QA
+"What is the procedure for applying for remote work?",Document_QA
+"Please list the documents required for business trip expense reimbursement.",Document_QA
+"Explain the limits and regulations for using the corporate credit card.",Document_QA
+"How is the annual leave promotion policy operated?",Document_QA
+"Who is required to complete the mandatory security training?",Document_QA
+"How many welfare points does an employee in their third year receive?",Document_QA
+"I'm curious about our company's maternity leave policy.",Document_QA
+"Provide the contact information and operating hours for the internal IT helpdesk.",Document_QA
+"What is the replacement cycle for company laptops?",Document_QA
+"Are there any guidelines for project code naming conventions?",Document_QA
+"Tell me about the policy for supporting company clubs.",Document_QA
+"Summarize the privacy policy related to handling customer information.",Document_QA
+"Find the user manual for the meeting room reservation system.",Document_QA
+"Explain the internal regulations for designating approval lines.",Document_QA
+"Is there a document about our company's Core Values?",Document_QA
+"What are the criteria and eligibility for long-service leave?",Document_QA
+"Why does the `TypeError: 'NoneType' object is not iterable` error occur?",Code_Assistant
+"Write a Python script to remove duplicate items from a list.",Code_Assistant
+"What is the command to merge two Git branches?",Code_Assistant
+"How can I change a parent component's state from a child component in React?",Code_Assistant
+"Please refactor the given CSS code to be more efficient.",Code_Assistant
+"Create a JavaScript function to sort an array of numbers in ascending order.",Code_Assistant
+"Show me an example of calculating a factorial using a recursive function.",Code_Assistant
+"What are some coding practices to prevent SQL Injection attacks?",Code_Assistant
+"Can you analyze the time complexity of this C++ code?",Code_Assistant
+"What is the command to run a Docker container and map a specific port to the host?",Code_Assistant
+"Write the code to select rows from a Pandas DataFrame that meet a specific condition.",Code_Assistant
+"I'm getting a 401 Unauthorized error on an API request. How should I debug it?",Code_Assistant
+"Explain how to use `async/await` in JavaScript for asynchronous operations.",Code_Assistant
+"Create a regular expression to validate if a string is a valid email format.",Code_Assistant
+"How do you set up a one-to-many relationship in a Django model?",Code_Assistant
+"Find potential memory leaks in this code block.",Code_Assistant
+"Show me how to parse a JSON string into a Python dictionary.",Code_Assistant
+"Implement the bubble sort algorithm in code.",Code_Assistant
+"Explain the differences between `let`, `const`, and `var` in JavaScript.",Code_Assistant
+"Show me an example of building a CI/CD pipeline using Github Actions.",Code_Assistant
+"Show me the sales growth rate by product category compared to the last quarter.",Data_Explorer
+"Calculate the number of active users who have been registered for more than one year.",Data_Explorer
+"Extract the email list of users who signed up last month from the user table.",Data_Explorer
+"Visualize the average purchase amount by age group for users in their 20s.",Data_Explorer
+"Based on the A/B test results, is the conversion rate of option B statistically significantly higher than option A?",Data_Explorer
+"Write an SQL query to join the `orders` and `customers` tables to calculate the total order amount for each customer.",Data_Explorer
+"Plot a graph showing the daily new user sign-up trend for the last 30 days.",Data_Explorer
+"Create a table of the top 10 best-selling products.",Data_Explorer
+"Calculate the average and standard deviation of delivery delay times by region.",Data_Explorer
+"Can you show me a list of all tables in the current database?",Data_Explorer
+"Compare and analyze the Return On Ad Spend (ROAS) for each marketing campaign.",Data_Explorer
+"Retrieve the last 5 purchase records for a specific user.",Data_Explorer
+"Summarize the transaction count and total amount by payment method.",Data_Explorer
+"Analyze the bounce rate and average session duration of website visitors.",Data_Explorer
+"Detect and visualize outliers in the sales data.",Data_Explorer
+"Aggregate the total monthly sales from the `sales` table based on the `sale_date` column.",Data_Explorer
+"Show the age distribution of all customers as a histogram.",Data_Explorer
+"Find the customer segment with the highest repurchase rate.",Data_Explorer
+"Show the change in MAU (Monthly Active Users) this year compared to the same period last year.",Data_Explorer
+"Calculate the correlation between two variables and draw a scatter plot.",Data_Explorer
+"How was your day?",Casual_Chat
+"What's the weather like in Korea right now?",Casual_Chat
+"Tell me a funny joke.",Casual_Chat
+"What is the highest mountain in the world?",Casual_Chat
+"Hello, nice to meet you.",Casual_Chat
+"Can artificial intelligence feel emotions?",Casual_Chat
+"Can you recommend something for dinner?",Casual_Chat
+"Thank you, I've solved it thanks to you.",Casual_Chat
+"Tell me about Shakespeare's four great tragedies.",Casual_Chat
+"Briefly explain the principle of Bitcoin.",Casual_Chat
+"How are you feeling today?",Casual_Chat
+"Are there any good movies to watch this weekend?",Casual_Chat
+"What is the capital of South Korea?",Casual_Chat
+"I'm tired, what's a good way to wake up?",Casual_Chat
+"Who are you?",Casual_Chat
+"What do you think is the greatest invention in history?",Casual_Chat
+"Why do cats purr?",Casual_Chat
+"What time is it now?",Casual_Chat
+"Sing the Happy Birthday song.",Casual_Chat
+"What are your plans for the future?",Casual_Chat

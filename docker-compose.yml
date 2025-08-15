@@ -26,6 +26,7 @@ services:
       - DW_SERVICE_URL=http://dw-service:8000
     volumes:
       - ./agent-service/app:/app/app
+      - ./agent-service/tests:/app/tests
 
   rag-service-data:
     image: pgvector/pgvector:pg16
