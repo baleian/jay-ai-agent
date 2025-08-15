@@ -3,7 +3,7 @@ import pandas as pd
 from app.agents.supervisor import get_supervisor_chain
 
 
-def test():
+def test_supervisor_routing():
     chain = get_supervisor_chain()
     df = pd.read_csv("tests/data/supervisor_eval_data.csv", encoding="utf-8")
     
@@ -23,6 +23,3 @@ def test():
         
     assert correct_count / (index + 1) >= 0.9, "The routing accuracy is less than 90%"
     
-
-if __name__ == "__main__":
-    test()
