@@ -65,6 +65,12 @@ docker exec -it rag-service uv run scripts/build_collections.py
 docker exec -it rag-service uv run scripts/test_retriever.py
 ```
 
+**Test agents:**
+
+```bash
+docker exec -it agent-service uv run pytest -s
+```
+
 -----
 
 ## 💡 Usage
