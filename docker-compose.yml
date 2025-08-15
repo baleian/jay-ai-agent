@@ -74,9 +74,4 @@ services:
       - "8002:8000"
     volumes:
       - ./dw-service/app:/app/app
-    healthcheck:
-      test: ["CMD", "curl", "localhost:8000/health"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
   

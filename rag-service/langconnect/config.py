@@ -14,8 +14,8 @@ def get_embeddings() -> Embeddings:
     # TODO: Allow setting different embedding configurations per collection.
     return HuggingFaceEmbeddings(
         model_name="Qwen/Qwen3-Embedding-4B",
-        # model_kwargs={'device': 'cpu'},
-        encode_kwargs={'normalize_embeddings': True}
+        model_kwargs={'device': 'cpu'},
+        encode_kwargs={'normalize_embeddings': True}  # compare only cosine similarity (exclude vector size)
     )
 
 
