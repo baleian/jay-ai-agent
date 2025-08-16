@@ -200,10 +200,13 @@ def text_to_sql_node(state: DataExplorerState):
 
 
 def sql_corrector_node(state: DataExplorerState):
-    chain = get_sql_corrector_chain()
     # 마지막 사용자 입력 이전의 대화 이력은 무시합니다.
     trimmed_messages = trim_messages_from_last_human_message(state["messages"])
-    response = chain.invoke(dict(**state, messages=trimmed_messages))
+    # Node는 순수 함수여서 state 객체 업데이트는 그래프 영구 상태에는 영향을 주지 않으므로 안전합니다.
+    state.update({"messages": trimmed_messages})
+
+    chain = get_sql_corrector_chain()
+    response = chain.invoke(state)
     response = compose_message_context(response)
     update_state = {"messages": [response]}
 
