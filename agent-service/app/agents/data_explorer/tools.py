@@ -32,6 +32,7 @@ def execute_query(sql: str) -> dict:
     headers = {"Content-Type": "application/json"}
     payload = {"query": sql}
     response = requests.post(url, headers=headers, json=payload)
+    response.raise_for_status()
     return response.json()
 
 
