@@ -6,6 +6,9 @@ from langchain_core.messages import SystemMessage, HumanMessage, ToolMessage
 from langgraph.graph import MessagesState, StateGraph, START, END
 from langgraph.prebuilt import ToolNode
 
+from app.utils.helper import trim_messages_from_last_human_message
+
+
 from app.agents.data_explorer.tools import (
     get_table_schemas,
     execute_query
@@ -198,15 +201,9 @@ def text_to_sql_node(state: DataExplorerState):
 
 def sql_corrector_node(state: DataExplorerState):
     chain = get_sql_corrector_chain()
-
-    # 직전 사용자 입력 이전의 대화 이력은 무시합니다.
-    if isinstance(state["messages"][-1], HumanMessage):
-        messages = [state["messages"][-1]]
-    # Agent loop 하면서 생성한 context는 모두 활용합니다.
-    else:
-        messages = state["messages"]
-    
-    response = chain.invoke({"messages": messages, "generated_sql": state["generated_sql"]})
+    # 마지막 사용자 입력 이전의 대화 이력은 무시합니다.
+    trimmed_messages = trim_messages_from_last_human_message(state["messages"])
+    response = chain.invoke(dict(**state, messages=trimmed_messages))
     response = compose_message_context(response)
     update_state = {"messages": [response]}
 

@@ -1,4 +1,6 @@
-from langchain_core.messages import BaseMessage, AIMessage
+from typing import List
+
+from langchain_core.messages import BaseMessage, HumanMessage
 
 
 def compose_message_context(message: BaseMessage) -> BaseMessage:
@@ -9,3 +11,11 @@ def compose_message_context(message: BaseMessage) -> BaseMessage:
         return copied_message
         
     return message
+
+
+def trim_messages_from_last_human_message(messages: List[BaseMessage]) -> List[BaseMessage]:
+    # 메시지 리스트에서 마지막 HumanMessage 이후의 리스트만 반환
+    for i in range(len(messages) - 1, -1, -1):
+        if isinstance(messages[i], HumanMessage):
+            return messages[i:]
+    return messages
