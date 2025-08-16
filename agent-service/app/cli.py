@@ -1,7 +1,12 @@
+"""
+TODO: 사용자 입력 - 최종 응답에 대한 출력과, 중간 노드에서의 출력을 구분하기
+"""
+
 import os
 import json
 import uuid
 import asyncio
+import traceback
 from dotenv import load_dotenv
 from typing import Any, Iterator
 
@@ -12,7 +17,8 @@ from rich.align import Align
 from rich.live import Live
 from rich.markdown import Markdown
 
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, ToolMessage
+from langgraph.types import Command
 
 
 class ConsoleUI:
@@ -103,10 +109,14 @@ class ConsoleUI:
                         tool_str = f"[bold]Tool:[/bold] {event['name']}\n[bold]Args:[/bold]\n{pretty_args}"
                         self.console.print(Panel(tool_str, title="[yellow]Tool Call[/yellow]", border_style="yellow", expand=False))
                     if "output" in data:
-                        tool_msg = data["output"].content
+                        if isinstance(data["output"], ToolMessage):
+                            tool_msg = data["output"].content
+                        else:
+                            tool_msg = data["output"]
                         try:
-                            json_obj = json.loads(tool_msg)
-                            tool_msg = json.dumps(json_obj, indent=2, ensure_ascii=False)
+                            if isinstance(tool_msg, str):
+                                json_obj = json.loads(tool_msg)
+                                tool_msg = json.dumps(json_obj, indent=2, ensure_ascii=False)
                         except:
                             pass
                         self.console.print(Panel(tool_msg, title="[green]Tool Result[/green]", border_style="green", expand=False))
@@ -118,6 +128,7 @@ class ConsoleUI:
         while True:
             try:
                 user_input = self.console.input("[bold green]You: [/bold green]")
+
                 # Shell 에서 한글 수정 시 인코딩 에러 방지
                 user_input = user_input.encode('utf-8', 'surrogateescape').decode('utf-8', 'ignore')
 
@@ -153,6 +164,14 @@ class ConsoleUI:
                 )
                 
                 asyncio.run(self._handle_stream(stream))
+
+                # Interrupted by Human in the loop
+                while self.app.get_state(config).interrupts:
+                    self.console.print(self.app.get_state(config).interrupts)
+                    user_input = self.console.input("[bold magenta]Make approvals: [/bold magenta]")
+                    user_input = json.loads(user_input)
+                    stream = self.app.astream_events(Command(resume=user_input), config=config, subgraphs=True)
+                    asyncio.run(self._handle_stream(stream))
                 
                 self.console.print("\n" + "-" * 50, style="dim")
 
@@ -161,6 +180,7 @@ class ConsoleUI:
                 break
             except Exception as e:
                 self.console.print(f"[bold red]오류가 발생했습니다:[/bold red] {e}")
+                print(traceback.format_exc())
 
 
 if __name__ == "__main__":

@@ -121,7 +121,7 @@ Below are the specialized agents in this workflow and examples of queries they h
   - **`Casual_Chat`**: Manages general conversations and any non-specialized chat that doesn't fall into the categories above.  
     *Example Queries:*
        - Hi, how are you today?
-       - What's the weather like in Seoul and New York now?
+       - How is the weather like in Seoul and New York now?
 
 -----
 
@@ -215,5 +215,4 @@ docker-compose down -v
 ## 📝 TODO List
 
   - Enhancing prompts based on the [OpenAI Prompting Guide](https://cookbook.openai.com/examples/gpt-5/gpt-5_prompting_guide) cookbook.
-  - Adding `Human in the Loop` to the `SQL Executor`'s tool call step.
   - Documenting the system architecture design overview.

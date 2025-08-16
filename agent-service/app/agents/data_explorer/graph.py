@@ -1,12 +1,21 @@
+"""
+TODO: 
+- loop(loop(스키마 조회 -> 쿼리 플래닝) -> 플랜 검증) -> 쿼리 생성 -> 실행 -> 요약 등으로 변경 가능
+- 여러 소스의 데이터를 각각 조회하고 요약해야 하는 경우 JOIN으로 불가능 하므로, `쿼리 생성` 단계에서 하나의 쿼리가 아닌 복수 쿼리와 데이터 소스가 생성될 수 있음을 고려
+"""
+
 import json
 from typing import Literal, List
 
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.messages import SystemMessage, HumanMessage, ToolMessage
+from langchain_core.messages import SystemMessage, HumanMessage, ToolMessage, AIMessage
 from langgraph.graph import MessagesState, StateGraph, START, END
 from langgraph.prebuilt import ToolNode
 
-from app.utils.helper import trim_messages_from_last_human_message
+from app.utils.helper import (
+    trim_messages_from_last_human_message,
+    human_in_the_loop
+)
 
 
 from app.agents.data_explorer.tools import (
@@ -139,7 +148,7 @@ def get_sql_executor_chain():
     prompt_template = ChatPromptTemplate.from_messages(
         [
             SystemMessage(system_prompt),
-            ("human", "{generated_sql}")
+            ("human", "{corrected_sql}")
         ]
     )
 
@@ -151,25 +160,17 @@ def get_summary_chain():
     llm = config.get_default_llm()
 
     system_prompt = """
-- 당신은 `Query Result`의 데이터를 분석합니다. 
+- 당신은 지금까지의 데이터 분석 결과를 바탕으로 요약하여 사용자의 원래 질문에 응답합니다. 
 - 사용자가 이해하기 쉬운 **핵심적인 내용을 요약**하여, 간결하고 명확한 문장으로 최종 보고서를 작성합니다.
 - 사용자의 질문에 대한 대답을 할 수 있는 요약을 작성합니다. 예를 들어, "총 5개의 제품이 검색되었으며, 가장 인기 있는 제품은 'A'입니다." 와 같이 요약해 주세요.
 - 만약 사용자 질문에 정확히 대답할 수 없다면, 정확한 정보를 확인할 수 없다고 알려주세요.
 """.rstrip()
     
-    prompt = """
-`User Question`: {user_question}
-
-`Generated SQL`: {generated_sql}
-
-`Query Result`: {query_result}
-""".rstrip()
-
     prompt_template = ChatPromptTemplate.from_messages(
         [
             SystemMessage(system_prompt),
             MessagesPlaceholder(variable_name="messages"),
-            ("human", prompt)
+            ("human", "`Original User Question`: {user_question}")
         ]
     )
 
@@ -180,22 +181,26 @@ def get_summary_chain():
 class DataExplorerState(MessagesState):
     user_question: str
     generated_sql: str
-    query_result: List[dict]
+    corrected_sql: str
 
 
 def text_to_sql_node(state: DataExplorerState):
     chain = get_text_to_sql_chain()
     response = chain.invoke(state)
     response = compose_message_context(response)
+
+    # LLM의 마지막 응답을 상태에 추가
     update_state = {"messages": [response]}
 
-    # 마지막 input message가 사람이인 경우
+    # 마지막 input message가 사람이인 경우 (최초 진입의 경우), 
     if isinstance(state["messages"][-1], HumanMessage):
+        # 유저의 첫 질문 내용을 상태에 저장
         update_state["user_question"] = state["messages"][-1].content
 
-    # Text to SQL 노드의 응답 결과가 있는 경우 (Tool calling 제외)
+    # Text to SQL 노드가 생성한 콘텐츠가 있는 경우, generated_sql로 상태 업데이트
     if response.content:
         update_state["generated_sql"] = response.content
+    
     return update_state
 
 
@@ -208,25 +213,28 @@ def sql_corrector_node(state: DataExplorerState):
     chain = get_sql_corrector_chain()
     response = chain.invoke(state)
     response = compose_message_context(response)
+
+    # LLM의 마지막 응답을 상태에 추가
     update_state = {"messages": [response]}
 
-    # Text to SQL 노드의 응답 결과가 있는 경우 (Tool calling 제외)
+    # SQL Corrector 노드가 생성한 콘텐츠가 있는 경우, corrected_sql로 상태 업데이트
     if response.content:
-        update_state["generated_sql"] = response.content
+        update_state["corrected_sql"] = response.content
+    
     return update_state
 
 
 def sql_executor_node(state: DataExplorerState):
-    # execute_query 도구 호출 결과가 정상적인 경우, 그래프 상태 업데이트 후 종료
-    # TODO: 도구 이름 확인, 메시지 구조화 등 리팩토링 필요
-    if isinstance(state["messages"][-1], ToolMessage):
-        query_result = json.loads(state["messages"][-1].content)
-        if isinstance(query_result, dict) and "data" in query_result:
-            return {"query_result": query_result.get("data", [])}
-    
     chain = get_sql_executor_chain()
     response = chain.invoke(state)
     response = compose_message_context(response)
+    
+    if response.tool_calls:
+        tool_calls = human_in_the_loop(response.tool_calls, allow_edit=True)
+        if not tool_calls:
+            return {"messages": [response, AIMessage(content="사용자가 요청을 취소했습니다.")]}
+        response.tool_calls = tool_calls
+
     return {"messages": [response]}
 
 
@@ -260,14 +268,11 @@ def sql_corrector_tools_condition(state: DataExplorerState) -> Literal["SQL_Corr
         return "SQL_Executor"
     
 
-def sql_executor_tools_condition(state: DataExplorerState) -> Literal["SQL_Executor.tools", "Summary", "__end__"]:
+def sql_executor_tools_condition(state: DataExplorerState) -> Literal["SQL_Executor.tools", "__end__"]:
     response = state["messages"][-1]
     # When llm wants tool calling
     if hasattr(response, "tool_calls") and len(response.tool_calls) > 0:
         return "SQL_Executor.tools"
-    # When llm executed query and got result
-    elif "query_result" in state:
-        return "Summary"
     # Otherwise
     else:
         return END
@@ -289,7 +294,7 @@ workflow.add_edge("Text_to_SQL.tools", "Text_to_SQL")
 workflow.add_conditional_edges("SQL_Corrector", sql_corrector_tools_condition)
 workflow.add_edge("SQL_Corrector.tools", "SQL_Corrector")
 workflow.add_conditional_edges("SQL_Executor", sql_executor_tools_condition)
-workflow.add_edge("SQL_Executor.tools", "SQL_Executor")
+workflow.add_edge("SQL_Executor.tools", "Summary")
 workflow.add_edge("Summary", END)
 
 graph = workflow.compile()
