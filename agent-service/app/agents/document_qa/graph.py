@@ -6,7 +6,10 @@ from langgraph.graph import MessagesState, StateGraph, START, END
 from langgraph.prebuilt import ToolNode
 
 from app.agents.document_qa.tools import get_internal_documents
-from app.utils.helper import compose_message_context
+from app.utils.helper import (
+    invoke_runnable_with_usage_callback,
+    compose_message_context
+)
 from app import config
 
 
@@ -50,7 +53,7 @@ def get_document_qa_cain():
 
 def document_qa_node(state: MessagesState):
     chain = get_document_qa_cain()
-    response = chain.invoke(state)
+    response = invoke_runnable_with_usage_callback(chain, state)
     response = compose_message_context(response)
     return {"messages": [response]}
 

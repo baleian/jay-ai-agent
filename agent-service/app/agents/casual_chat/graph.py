@@ -6,7 +6,10 @@ from langgraph.graph import MessagesState, StateGraph, START, END
 from langgraph.prebuilt import ToolNode
 
 from app.agents.casual_chat.tools import all_tools
-from app.utils.helper import compose_message_context
+from app.utils.helper import (
+    invoke_runnable_with_usage_callback,
+    compose_message_context
+)
 from app import config
 
 
@@ -37,7 +40,7 @@ def get_casual_chat_chain():
 
 def casual_chat_node(state: MessagesState):
     chain = get_casual_chat_chain()
-    response = chain.invoke(state)
+    response = invoke_runnable_with_usage_callback(chain, state)
     response = compose_message_context(response)
     return {"messages": [response]}
 

@@ -126,7 +126,8 @@ class ConsoleUI:
                         self.console.print(Panel(tool_msg, title="[green]Tool Result[/green]", border_style="green", expand=False))
                 
                 elif kind == "on_custom_event":
-                    pass
+                    if event["name"] == "usage_metadata":
+                        self.console.print(event["data"])
 
     def run(self):
         """사용자 입력을 받고 에이전트를 실행하는 메인 루프"""

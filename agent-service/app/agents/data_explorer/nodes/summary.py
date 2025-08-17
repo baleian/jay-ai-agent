@@ -3,7 +3,10 @@ from langchain_core.runnables import RunnableSerializable
 from langchain_core.messages import SystemMessage
 
 from app.agents.data_explorer.state import GraphState
-from app.utils.helper import compose_message_context
+from app.utils.helper import (
+    invoke_runnable_with_usage_callback,
+    compose_message_context
+)
 from app import config
 
 
@@ -33,6 +36,6 @@ def get_runnable_chain() -> RunnableSerializable:
 
 def node(state: GraphState) -> dict:
     chain = get_runnable_chain()
-    response = chain.invoke(state)
+    response = invoke_runnable_with_usage_callback(chain, state)
     response = compose_message_context(response)
     return {"messages": [response]}

@@ -6,9 +6,8 @@ from langgraph.prebuilt import ToolNode
 from app.agents.data_explorer.state import GraphState
 from app.agents.data_explorer.tools import execute_query
 from app.utils.helper import (
-    compose_message_context, 
-    trim_messages_from,
-    human_in_the_loop
+    invoke_runnable_with_usage_callback,
+    compose_message_context
 )
 from app import config
 
@@ -49,7 +48,7 @@ def get_runnable_chain() -> RunnableSerializable:
 
 def node(state: GraphState) -> dict:
     chain = get_runnable_chain()
-    response = chain.invoke(state)
+    response = invoke_runnable_with_usage_callback(chain, state)
     response = compose_message_context(response)
     
     # 도구 호출 성공

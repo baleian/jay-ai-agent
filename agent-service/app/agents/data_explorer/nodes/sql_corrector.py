@@ -6,6 +6,7 @@ from langgraph.prebuilt import ToolNode
 from app.agents.data_explorer.state import GraphState
 from app.agents.data_explorer.tools import execute_query
 from app.utils.helper import (
+    invoke_runnable_with_usage_callback,
     compose_message_context, 
     trim_messages_from
 )
@@ -84,7 +85,7 @@ def node(state: GraphState) -> dict:
     state.update({"messages": trimmed_messages})
 
     chain = get_runnable_chain()
-    response = chain.invoke(state)
+    response = invoke_runnable_with_usage_callback(chain, state)
     response = compose_message_context(response)
 
     # Tool 호출의 경우

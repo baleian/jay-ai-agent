@@ -1,6 +1,8 @@
 from typing import List, Type
 
 from langchain_core.messages import BaseMessage, ToolCall
+from langchain_core.runnables import RunnableSerializable
+from langchain_core.callbacks import get_usage_metadata_callback, dispatch_custom_event
 from langgraph.types import interrupt
 from langgraph.prebuilt.interrupt import HumanInterruptConfig, HumanInterrupt, ActionRequest, HumanResponse
 
@@ -84,3 +86,10 @@ def human_in_the_loop(tool_calls: List[ToolCall],
     new_tool_calls = map(lambda x: _mapper(*x), zip(tool_calls, requests, responses))
     accepted_tool_calls = filter(lambda x: x is not None, new_tool_calls)
     return list(accepted_tool_calls)
+
+
+def invoke_runnable_with_usage_callback(runnable: RunnableSerializable, state: dict):
+    with get_usage_metadata_callback() as cb:
+        response = runnable.invoke(state)
+        dispatch_custom_event("usage_metadata", cb.usage_metadata)
+        return response

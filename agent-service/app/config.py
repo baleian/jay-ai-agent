@@ -17,7 +17,7 @@ def get_default_llm(
     model=DEFAULT_MODEL_NAME,
     base_url=LLM_SERVICE_URL,
     reasoning=DEFAULT_REASONING_ENABLE,
-    num_ctx=8192,
+    num_ctx=8192 * 2,
     **kwargs
 ):
     return  ChatOllama(

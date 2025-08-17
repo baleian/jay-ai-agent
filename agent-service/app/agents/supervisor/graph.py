@@ -7,8 +7,9 @@ from pydantic import BaseModel, Field
 
 from app.agents import document_qa, code_assistant, data_explorer, casual_chat
 from app.utils.helper import (
-    trim_messages_from,
-    compose_message_context
+    invoke_runnable_with_usage_callback,
+    compose_message_context,
+    trim_messages_from
 )
 from app import config
 
@@ -67,7 +68,7 @@ def supervisor_node(state: SupervisorState):
     state.update({"messages": trimmed_messages})
 
     chain = get_supervisor_chain()
-    response = chain.invoke(state)
+    response = invoke_runnable_with_usage_callback(chain, state)
     response = compose_message_context(response)
 
     if not response.tool_calls:
