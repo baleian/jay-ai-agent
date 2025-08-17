@@ -9,7 +9,7 @@ from typing import Literal
 from langgraph.graph import StateGraph, START, END
 
 from app.agents.data_explorer.state import GraphState
-from app.agents.data_explorer.nodes import text_to_sql, sql_corrector, sql_executor
+from app.agents.data_explorer.nodes import text_to_sql, sql_corrector, sql_executor, summary
 
 
 def text_to_sql_tools_condition(state: GraphState) -> Literal["Text_to_SQL.tools", "SQL_Corrector", "__end__"]:
@@ -58,6 +58,7 @@ workflow.add_node("SQL_Corrector", sql_corrector.node)
 workflow.add_node("SQL_Corrector.tools", sql_corrector.tool_nodes)
 workflow.add_node("SQL_Executor", sql_executor.node)
 workflow.add_node("SQL_Executor.tools", sql_executor.tool_nodes)
+workflow.add_node("Summary", summary.node)
 
 workflow.add_edge(START, "Text_to_SQL")
 workflow.add_conditional_edges("Text_to_SQL", text_to_sql_tools_condition)
@@ -65,6 +66,7 @@ workflow.add_edge("Text_to_SQL.tools", "Text_to_SQL")
 workflow.add_conditional_edges("SQL_Corrector", sql_corrector_tools_condition)
 workflow.add_edge("SQL_Corrector.tools", "SQL_Corrector")
 workflow.add_conditional_edges("SQL_Executor", sql_executor_tools_condition)
-workflow.add_edge("SQL_Executor.tools", "SQL_Executor")
+workflow.add_edge("SQL_Executor.tools", "Summary")
+workflow.add_edge("Summary", END)
 
 graph = workflow.compile()

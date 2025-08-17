@@ -6,6 +6,10 @@ from langchain_core.messages import AIMessage
 from app.agents import supervisor
 
 
+# with open("./app/graph.png", "wb") as f:
+#     f.write(supervisor.graph.graph.get_graph(xray=True).draw_mermaid_png())
+
+
 def chatbot(state: MessagesState):
     response = supervisor.graph.graph.invoke(state)
     ai_message = response["messages"][-1]
