@@ -142,7 +142,7 @@ Example queries to test the Text-to-SQL capabilities.
     -- Result: 13
     ```
 
-2.  **How many accounts who have region in Prague are eligible for loans?**
+2.  **How many accounts have loans in the Prague region?**
     
     difficulty: `simple`
     ```sql
