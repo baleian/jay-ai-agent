@@ -1,12 +1,13 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableSerializable
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, AIMessage
 from langgraph.prebuilt import ToolNode
 
 from app.agents.data_explorer.state import GraphState
 from app.agents.data_explorer.tools import execute_query
 from app.utils.helper import (
     invoke_runnable_with_usage_callback,
+    human_in_the_loop,
     compose_message_context
 )
 from app import config
@@ -53,11 +54,11 @@ def node(state: GraphState) -> dict:
     
     # 도구 호출 성공
     if response.tool_calls:
-        # # 쿼리 실행을 위한 사용자 승인 요청
-        # tool_calls = human_in_the_loop(response.tool_calls, allow_edit=True)
-        # if not tool_calls:
-        #     return {"messages": [response, AIMessage(content="사용자가 요청을 취소했습니다.")]}
-        # response.tool_calls = tool_calls
+        # 쿼리 실행을 위한 사용자 승인 요청
+        tool_calls = human_in_the_loop(response.tool_calls, allow_edit=True)
+        if not tool_calls:
+            return {"messages": [response, AIMessage(content="사용자가 요청을 취소했습니다.")]}
+        response.tool_calls = tool_calls
         return {"messages": [response]}
 
     return {"messages": [response]}
