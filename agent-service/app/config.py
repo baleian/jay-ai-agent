@@ -30,3 +30,5 @@ def get_default_llm(
 
 INTERNAL_DOCUMENTS_RAG_COLLECTION_NAME = env("INTERNAL_DOCUMENT_RAG_COLLECTION_NAME", cast=str, default="internal_documents")
 DB_TABLE_SCHEMAS_RAG_COLLECTION_NAME = env("DB_TABLE_SCHEMAS_RAG_COLLECTION_NAME", cast=str, default="db_table_schemas")
+
+IS_HUMAN_IN_THE_LOOP_ENABLED = env("IS_HUMAN_IN_THE_LOOP_ENABLED", cast=str, default="true").lower() == "true"

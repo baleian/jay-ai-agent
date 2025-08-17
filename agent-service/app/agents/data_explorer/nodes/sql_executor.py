@@ -53,13 +53,15 @@ def node(state: GraphState) -> dict:
     response = compose_message_context(response)
     
     # 도구 호출 성공
-    if response.tool_calls:
+    if response.tool_calls and config.IS_HUMAN_IN_THE_LOOP_ENABLED:
         # 쿼리 실행을 위한 사용자 승인 요청
         tool_calls = human_in_the_loop(response.tool_calls, allow_edit=True)
+        
         if not tool_calls:
-            return {"messages": [response, AIMessage(content="사용자가 요청을 취소했습니다.")]}
+            return {"messages": [response, AIMessage(content="사용자가 모든 요청을 취소했습니다.")]}
+        
+        # 승인된 도구 호출만 재설정
         response.tool_calls = tool_calls
-        return {"messages": [response]}
 
     return {"messages": [response]}
 
