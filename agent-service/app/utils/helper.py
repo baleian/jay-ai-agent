@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Type
 
-from langchain_core.messages import BaseMessage, HumanMessage, ToolCall
+from langchain_core.messages import BaseMessage, ToolCall
 from langgraph.types import interrupt
 from langgraph.prebuilt.interrupt import HumanInterruptConfig, HumanInterrupt, ActionRequest, HumanResponse
 
@@ -15,11 +15,25 @@ def compose_message_context(message: BaseMessage) -> BaseMessage:
     return message
 
 
-def trim_messages_from_last_human_message(messages: List[BaseMessage]) -> List[BaseMessage]:
-    # 메시지 리스트에서 마지막 HumanMessage 이후의 리스트만 반환
-    for i in range(len(messages) - 1, -1, -1):
-        if isinstance(messages[i], HumanMessage):
-            return messages[i:]
+def trim_messages_from(messages: List[BaseMessage], message_type: Type[BaseMessage], n: int = 1, from_end: bool = True):
+    if not isinstance(n, int) or n <= 0:
+        raise ValueError("`n` must be an integer greater than 0.")
+    
+    if n > len(messages):
+        return messages
+    
+    matches_found = 0
+    
+    if from_end:
+        iters = range(len(messages) - 1, -1, -1)
+    else:
+        iters = range(0, len(messages), 1)
+
+    for i in iters:
+        if isinstance(messages[i], message_type):
+            matches_found += 1
+            if matches_found == n:
+                return messages[i:]
     return messages
 
 

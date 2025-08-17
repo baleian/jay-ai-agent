@@ -7,7 +7,7 @@ from app.agents import supervisor
 
 
 def chatbot(state: MessagesState):
-    response = supervisor.graph.invoke(state)
+    response = supervisor.graph.graph.invoke(state)
     ai_message = response["messages"][-1]
     if isinstance(ai_message, AIMessage):
         # Append only the last AI message to state (to minimize context)

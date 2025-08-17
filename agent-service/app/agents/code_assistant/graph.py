@@ -7,14 +7,7 @@ from app.utils.helper import compose_message_context
 from app import config
 
 
-def get_coder_chain():
-    llm = config.get_default_llm(
-        model=config.DEFAULT_CODER_MODEL_NAME, # Change to a model specific to coding.
-        # num_ctx=4096, # Sets the size of the context window used to generate the next token.
-    ) 
-    llm = llm.bind_tools(tools=all_tools)
-
-    system_prompt = """
+SYSTEM_PROMPT = """
 당신은 전문 소프트웨어 엔지니어입니다. 당신의 최우선 임무는 사용자의 요구에 맞춰 깨끗하고, 효율적이며, 잘 문서화된 코드를 작성하는 것입니다.
 
 당신의 행동 원칙:
@@ -24,13 +17,19 @@ def get_coder_chain():
 4. 질문하기: 사용자의 요구사항이 모호하거나 여러 해석의 여지가 있다면, 코드를 작성하기 전에 먼저 명확히 할 질문을 하세요.
 """.rstrip()
 
+REASONING = False
+
+def get_coder_chain():
+    llm = config.get_default_llm(
+        model=config.DEFAULT_CODER_MODEL_NAME, # Change to a model specific to coding.
+    ) 
+    llm = llm.bind_tools(tools=all_tools)
     prompt_template = ChatPromptTemplate.from_messages(
         [
-            SystemMessage(system_prompt),
+            SystemMessage(SYSTEM_PROMPT),
             MessagesPlaceholder(variable_name="messages")
         ]
     )
-
     chain = prompt_template | llm
     return chain
 

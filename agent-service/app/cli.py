@@ -1,5 +1,7 @@
 """
-TODO: 사용자 입력 - 최종 응답에 대한 출력과, 중간 노드에서의 출력을 구분하기
+TODO: 
+- 사용자 입력 - 최종 응답에 대한 출력과, 중간 노드에서의 출력을 구분하기
+- Agent 라우팅 선택 가능하게 하기, 기본 에이전트 변경하기 가능하게 하기
 """
 
 import os
@@ -19,11 +21,12 @@ from rich.markdown import Markdown
 
 from langchain_core.messages import HumanMessage, ToolMessage
 from langgraph.types import Command
+from langgraph.graph.state import CompiledStateGraph
 
 
 class ConsoleUI:
 
-    def __init__(self, graph_app: Any):
+    def __init__(self, graph_app: CompiledStateGraph):
         self.app = graph_app
         self.console = Console()
         self.thread_id = None
@@ -100,14 +103,15 @@ class ConsoleUI:
 
                 elif kind == "on_tool_start":
                     self.console.print(f"[grey50] Tool Calling: {node_name} ({event['name']})...[/grey50]")
-                       
-                elif kind == "on_tool_end":
                     data = event["data"]
                     if "input" in data:
                         tool_args = data["input"]
                         pretty_args = json.dumps(tool_args, indent=2, ensure_ascii=False)
                         tool_str = f"[bold]Tool:[/bold] {event['name']}\n[bold]Args:[/bold]\n{pretty_args}"
                         self.console.print(Panel(tool_str, title="[yellow]Tool Call[/yellow]", border_style="yellow", expand=False))
+                       
+                elif kind == "on_tool_end":
+                    data = event["data"]
                     if "output" in data:
                         if isinstance(data["output"], ToolMessage):
                             tool_msg = data["output"].content
@@ -120,6 +124,9 @@ class ConsoleUI:
                         except:
                             pass
                         self.console.print(Panel(tool_msg, title="[green]Tool Result[/green]", border_style="green", expand=False))
+                
+                elif kind == "on_custom_event":
+                    pass
 
     def run(self):
         """사용자 입력을 받고 에이전트를 실행하는 메인 루프"""
@@ -128,7 +135,7 @@ class ConsoleUI:
         while True:
             try:
                 user_input = self.console.input("[bold green]You: [/bold green]")
-
+                
                 # Shell 에서 한글 수정 시 인코딩 에러 방지
                 user_input = user_input.encode('utf-8', 'surrogateescape').decode('utf-8', 'ignore')
 

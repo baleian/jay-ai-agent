@@ -6,10 +6,14 @@ from langgraph.graph import StateGraph, MessagesState, START
 from pydantic import BaseModel, Field
 
 from app.agents import document_qa, code_assistant, data_explorer, casual_chat
+from app.utils.helper import (
+    trim_messages_from,
+    compose_message_context
+)
 from app import config
 
 
-system_prompt = """
+SYSTEM_PROMPT = """
 당신은 AI 에이전트 시스템의 지능형 라우팅 감독관입니다.
 
 당신의 **유일한 임무**는 사용자의 최신 질문을 **내용이 아닌 유형에 따라** 분류하고, 가장 적합한 전문가에게 즉시 작업을 전달하는 것입니다.
@@ -27,7 +31,11 @@ system_prompt = """
 - `Casual_Chat`: 위 경우에 해당하지 않는 일반적인 대화, 인사, 날씨, 상식 및 잡담.
 
 주어진 전문가 목록 중 하나를 반드시 선택하여 `Route`도구의 `next`로 전달하세요.
+
+**반드시 Route 도구를 호출하세요.**
 """.rstrip()
+
+REASONING = False # TODO: Consider about reasoning
 
 
 class Route(BaseModel):
@@ -36,16 +44,14 @@ class Route(BaseModel):
 
 
 def get_supervisor_chain():
-    llm = config.get_default_llm(reasoning=True) # TODO: Consider about reasoning
-    llm = llm.bind_tools(tools=[Route], tool_choice="Route")
-
+    llm = config.get_default_llm(reasoning=REASONING) 
+    llm = llm.bind_tools(tools=[Route])
     prompt_template = ChatPromptTemplate.from_messages(
         [
-            SystemMessage(system_prompt),
+            SystemMessage(SYSTEM_PROMPT),
             MessagesPlaceholder(variable_name="messages")
         ]
     )
-
     chain = prompt_template | llm
     return chain
 
@@ -55,24 +61,36 @@ class SupervisorState(MessagesState):
 
 
 def supervisor_node(state: SupervisorState):
+    # 3번째 전 사용자 입력 이후의 대화 내용만 참고하여 라우팅 합니다.
+    trimmed_messages = trim_messages_from(state["messages"], HumanMessage, 3)
+    # Node는 순수 함수여서 state 객체 업데이트는 그래프 영구 상태에는 영향을 주지 않으므로 안전합니다.
+    state.update({"messages": trimmed_messages})
+    print(state)
+
     chain = get_supervisor_chain()
-    # TODO: Consider trim_messages to ignore past interactions.
-    messages = state['messages']
-    response = chain.invoke({"messages": messages})
+    response = chain.invoke(state)
+    response = compose_message_context(response)
+
     if not response.tool_calls:
         # Supervisor가 라우팅 역할에 충실하지 않고 직접 답변을 한 경우, 한번의 추가 지침을 줍니다.
-        response = chain.invoke({"messages": messages + [HumanMessage(content="Route 도구를 호출하세요.")]})
-    route = response.tool_calls[0]['args']
-    return {"next": route["next"]}
+        response = chain.invoke({"messages": trimmed_messages + [HumanMessage(content="Route 도구를 호출하세요.")]})
+
+    # 정상적으로 라우팅 된 경우
+    if response.tool_calls:
+        route = response.tool_calls[0]['args']
+        return {"next": route["next"]}
+    
+    # 라우팅 되지 않은 응답
+    return {"messages": [response]}
 
 
 workflow = StateGraph(SupervisorState)
 
 workflow.add_node("Supervisor", supervisor_node)
-workflow.add_node("Document_QA", document_qa.graph)
-workflow.add_node("Code_Assistant", code_assistant.graph)
-workflow.add_node("Data_Explorer", data_explorer.graph)
-workflow.add_node("Casual_Chat", casual_chat.graph)
+workflow.add_node("Document_QA", document_qa.graph.graph)
+workflow.add_node("Code_Assistant", code_assistant.graph.graph)
+workflow.add_node("Data_Explorer", data_explorer.graph.graph)
+workflow.add_node("Casual_Chat", casual_chat.graph.graph)
 
 workflow.add_edge(START, "Supervisor")
 workflow.add_conditional_edges(

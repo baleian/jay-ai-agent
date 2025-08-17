@@ -1,6 +1,6 @@
 import pandas as pd
 
-from app.agents.supervisor import get_supervisor_chain
+from app.agents.supervisor.graph import get_supervisor_chain
 
 
 def test_supervisor_routing():

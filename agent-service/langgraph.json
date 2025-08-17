@@ -1,7 +1,11 @@
 {
   "dependencies": ["./app"],
   "graphs": {
-    "agent": "./app/__init__.py:graph"
+    "supervisor": "./app/agents/supervisor/graph.py:graph",
+    "casual_chat": "./app/agents/casual_chat/graph.py:graph",
+    "code_assistant": "./app/agents/code_assistant/graph.py:graph",
+    "data_explorer": "./app/agents/data_explorer/graph.py:graph",
+    "document_qa": "./app/agents/document_qa/graph.py:graph"
   },
   "env": ".env"
 }

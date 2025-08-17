@@ -10,11 +10,7 @@ from app.utils.helper import compose_message_context
 from app import config
 
 
-def get_casual_chat_chain():
-    llm = config.get_default_llm(reasoning=True)
-    llm = llm.bind_tools(tools=all_tools)
-
-    system_prompt = """
+SYSTEM_PROMPT = """
 당신은 `Jay`라는 이름의 대화형 AI입니다.
 
 사용자의 질문에 답변하기 위해 다음 단계를 따르세요:
@@ -23,13 +19,18 @@ def get_casual_chat_chain():
 3. **만약 도구가 필요 없다면**, 당신의 내부 지식을 사용하여 사용자의 질문에 직접 답변하세요.
 """.rstrip()
 
+REASONING = True
+
+
+def get_casual_chat_chain():
+    llm = config.get_default_llm(reasoning=REASONING)
+    llm = llm.bind_tools(tools=all_tools)
     prompt_template = ChatPromptTemplate.from_messages(
         [
-            SystemMessage(system_prompt),
+            SystemMessage(SYSTEM_PROMPT),
             MessagesPlaceholder(variable_name="messages")
         ]
     )
-
     chain = prompt_template | llm
     return chain
 
