@@ -65,7 +65,6 @@ def supervisor_node(state: SupervisorState):
     trimmed_messages = trim_messages_from(state["messages"], HumanMessage, 3)
     # Node는 순수 함수여서 state 객체 업데이트는 그래프 영구 상태에는 영향을 주지 않으므로 안전합니다.
     state.update({"messages": trimmed_messages})
-    print(state)
 
     chain = get_supervisor_chain()
     response = chain.invoke(state)
