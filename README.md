@@ -216,3 +216,4 @@ docker-compose down -v
 
   - Enhancing prompts based on the [OpenAI Prompting Guide](https://cookbook.openai.com/examples/gpt-5/gpt-5_prompting_guide) cookbook.
   - Documenting the system architecture design overview.
+    - [draw.io](https://app.diagrams.net/#G1ihumcWD1T3mbIQGv7cUeJys6XuwxMUQG#%7B%22pageId%22%3A%22CRXsjWDWif5k_Kqrh0Ci%22%7D)
