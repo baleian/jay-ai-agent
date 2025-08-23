@@ -5,7 +5,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 WORKDIR /app
 COPY . .
 
-RUN uv sync --locked
+RUN uv sync
 
 # Expose the application port
 EXPOSE 8000
